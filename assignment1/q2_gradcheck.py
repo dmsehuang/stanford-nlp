@@ -38,10 +38,17 @@ def gradcheck_naive(f, x):
 
         ### YOUR CODE HERE:
         random.setstate(rndstate)
-        fx1, grad1 = f(x[ix]+h/2)
+        x_tmp = x[ix]
+
+        x[ix] = x_tmp + h/2
+        fx1, grad1 = f(x)
+
         random.setstate(rndstate)
-        fx2, grad2 = f(x[ix]-h/2)
+        x[ix] = x_tmp - h/2
+        fx2, grad2 = f(x)
         numgrad = (fx1 - fx2)/h
+
+        x[ix] = x_tmp
         ### END YOUR CODE
 
         # Compare gradients
@@ -81,7 +88,7 @@ def your_sanity_checks():
     print "Running your sanity checks..."
     ### YOUR CODE HERE
     func = lambda x: (np.sum(np.log(sigmoid(x))), 1-sigmoid(x))
-    gradcheck_naive(func, np.array(1))      # scalar test
+    gradcheck_naive(func, np.array(1.))      # scalar test. Must use a float number!
     gradcheck_naive(func, np.random.randn(4,))    # 1-D test
     gradcheck_naive(func, np.random.randn(3,2))   # 2-D test
     ### END YOUR CODE
