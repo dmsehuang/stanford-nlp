@@ -111,6 +111,26 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     indices.extend(getNegativeSamples(target, dataset, K))
 
     ### YOUR CODE HERE
+
+    # step 1: cost
+    pos = outputVectors[target].dot(predicted)
+    cost = -np.log(sigmoid(pos))
+    for i in range(indices):
+        neg = -outputVectors[i].dot(predicted)
+        cost -= np.log(sigmoid(neg))
+
+    # step 2: gradient w.r.t predicted vecotr
+    gradPred = (sigmoid(pos)-1) * outputVectors[target]
+    for i in range(indices):
+        neg = -outputVectors[i].dot(predicted)
+        gradPred -= (sigmoid(neg)-1) * outputVectors[i]
+
+    # step 3: gradient w.r.t output vector
+    grad = np.zeros(outputVectors.shape)
+    grad[target] = (sigmoid(pos)-1) * predicted
+    for i in range(indices):
+        neg = -outputVectors[i].dot(predicted)
+        grad[i] = -(sigmoid(neg)-1) * predicted
     ### END YOUR CODE
 
     return cost, gradPred, grad
@@ -145,7 +165,7 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    #raise NotImplementedError
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
