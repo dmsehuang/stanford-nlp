@@ -61,7 +61,19 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     """
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+
+    # step 1: cost
+    y_predict = softmax(np.dot(predicted, outputVectors.T))
+    y_real = np.zeros(y_predict.shape)
+    y_real[target] = 1
+    cost = -np.sum(y_real * np.log(y_predict))
+
+    # step 2: gradient w.r.t predicted vector
+    gradPred = (y_predict - y_real).dot(outputVectors)
+
+    # step 3: gradient w.r.t output vector
+    grad = (y_predict - y_real).T.dot(predicted)
+
     ### END YOUR CODE
 
     return cost, gradPred, grad
@@ -99,7 +111,6 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     indices.extend(getNegativeSamples(target, dataset, K))
 
     ### YOUR CODE HERE
-    raise NotImplementedError
     ### END YOUR CODE
 
     return cost, gradPred, grad
@@ -158,7 +169,7 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    #raise NotImplementedError
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
@@ -242,4 +253,4 @@ def test_word2vec():
 
 if __name__ == "__main__":
     test_normalize_rows()
-    #test_word2vec()
+    test_word2vec()
