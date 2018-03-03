@@ -72,7 +72,10 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     gradPred = (y_predict - y_real).dot(outputVectors)
 
     # step 3: gradient w.r.t output vector
-    grad = (y_predict - y_real).T.dot(predicted)
+    # introduce vec_col & vec_row to convert a 1-D array into matrix format
+    vec_col = np.array([y_predict - y_real])
+    vec_row = np.array([predicted])
+    grad = vec_col.T.dot(vec_row)
 
     ### END YOUR CODE
 
@@ -168,7 +171,7 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     ind_curr = tokens[currentWord]
     predicted = inputVectors[ind_curr]
 
-    for i in range(C):
+    for i in range(2*C):
         contextWord = contextWords[i]
         target = tokens[contextWord]
 
