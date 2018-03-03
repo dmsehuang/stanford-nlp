@@ -116,26 +116,34 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     ### YOUR CODE HERE
 
     # step 1: cost
-    pos = outputVectors[target].dot(predicted)
-    cost = -np.log(sigmoid(pos))
-    for i in range(indices):
-        neg = -outputVectors[i].dot(predicted)
-        cost -= np.log(sigmoid(neg))
+    cost = 0
+    for i in indices:
+        s = outputVectors[i].dot(predicted)
+        if i == target:
+            cost += -np.log(sigmoid(s))
+        else:
+            cost += -np.log(sigmoid(-s))
 
     # step 2: gradient w.r.t predicted vecotr
-    gradPred = (sigmoid(pos)-1) * outputVectors[target]
-    for i in range(indices):
-        neg = -outputVectors[i].dot(predicted)
-        gradPred -= (sigmoid(neg)-1) * outputVectors[i]
+    gradPred = np.zeros(predicted.shape)
+    for i in indices:
+        s = outputVectors[i].dot(predicted)
+        if i == target:
+            gradPred += (sigmoid(s)-1) * outputVectors[i]
+        else:
+            gradPred += -(sigmoid(-s)-1) * outputVectors[i]
 
     # step 3: gradient w.r.t output vector
     grad = np.zeros(outputVectors.shape)
-    grad[target] = (sigmoid(pos)-1) * predicted
-    for i in range(indices):
-        neg = -outputVectors[i].dot(predicted)
-        grad[i] = -(sigmoid(neg)-1) * predicted
+    for i in indices:
+        s = outputVectors[i].dot(predicted)
+        if i == target:
+            grad[i, :] += (sigmoid(s)-1) * predicted
+        else:
+            grad[i, :] += -(sigmoid(-s)-1) * predicted
     ### END YOUR CODE
-
+    #print gradPred
+    #print grad
     return cost, gradPred, grad
 
 
@@ -171,15 +179,14 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     ind_curr = tokens[currentWord]
     predicted = inputVectors[ind_curr]
 
-    for i in range(2*C):
-        contextWord = contextWords[i]
+    for contextWord in contextWords:
         target = tokens[contextWord]
 
         cost_i, gradPred, grad \
             = word2vecCostAndGradient(predicted, target, outputVectors, dataset)
 
         cost += cost_i
-        gradIn[ind_curr] += gradPred
+        gradIn[ind_curr, :] += gradPred
         gradOut += grad
     ### END YOUR CODE
 
