@@ -15,7 +15,10 @@ def normalizeRows(x):
     """
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    a = x**2
+    y = np.sum(a, axis=1, keepdims=True)
+    y = np.sqrt(y)
+    x = x/y
     ### END YOUR CODE
 
     return x
@@ -239,4 +242,4 @@ def test_word2vec():
 
 if __name__ == "__main__":
     test_normalize_rows()
-    test_word2vec()
+    #test_word2vec()
