@@ -115,35 +115,29 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
 
     ### YOUR CODE HERE
 
+    # (v, d) x (d,) ==> (v,)
+    probs = np.dot(outputVectors, predicted)
+
     # step 1: cost
-    cost = 0
-    for i in indices:
-        s = outputVectors[i].dot(predicted)
-        if i == target:
-            cost += -np.log(sigmoid(s))
-        else:
-            cost += -np.log(sigmoid(-s))
+    cost = -np.log(sigmoid(probs[target]))
+    cost += -np.sum(np.log(sigmoid(-probs[indices[1:]])))
 
     # step 2: gradient w.r.t predicted vecotr
     gradPred = np.zeros(predicted.shape)
-    for i in indices:
-        s = outputVectors[i].dot(predicted)
-        if i == target:
-            gradPred += (sigmoid(s)-1) * outputVectors[i]
-        else:
-            gradPred += -(sigmoid(-s)-1) * outputVectors[i]
+    pos1 = sigmoid(probs[target]) - 1 # scalar
+    pos2 = outputVectors[target] # (d,)
+    neg1 = sigmoid(-probs[indices[1:]]) - 1 # (K,)
+    neg2 = outputVectors[indices[1:]] # (K,d)
+    gradPred = pos1 * pos2 - np.dot(neg1, neg2)
 
     # step 3: gradient w.r.t output vector
+    vec1 = neg1[:, np.newaxis] # (K, 1)
+    vec2 = predicted[np.newaxis, :] # (1,d)
     grad = np.zeros(outputVectors.shape)
-    for i in indices:
-        s = outputVectors[i].dot(predicted)
-        if i == target:
-            grad[i, :] += (sigmoid(s)-1) * predicted
-        else:
-            grad[i, :] += -(sigmoid(-s)-1) * predicted
+    grad[target, :] = pos1 * predicted
+    grad[indices[1:], :] = -np.dot(vec1, vec2)
+
     ### END YOUR CODE
-    #print gradPred
-    #print grad
     return cost, gradPred, grad
 
 
