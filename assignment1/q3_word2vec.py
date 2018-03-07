@@ -131,11 +131,10 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     gradPred = pos1 * pos2 - np.dot(neg1, neg2)
 
     # step 3: gradient w.r.t output vector
-    vec1 = neg1[:, np.newaxis] # (K, 1)
-    vec2 = predicted[np.newaxis, :] # (1,d)
     grad = np.zeros(outputVectors.shape)
-    grad[target, :] = pos1 * predicted
-    grad[indices[1:], :] = -np.dot(vec1, vec2)
+    grad[target, :] = (sigmoid(probs[target]) - 1) * predicted
+    for k in indices[1:]:
+        grad[k, :] += -(sigmoid(-probs[k]) - 1) * predicted
 
     ### END YOUR CODE
     return cost, gradPred, grad
