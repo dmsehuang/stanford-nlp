@@ -204,7 +204,22 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
-    #raise NotImplementedError
+    vec = np.zeros(inputVectors[0, :].shape) # (d,)
+    for contextWord in contextWords:
+        ind = tokens[contextWord]
+        vec += inputVectors[ind, :]
+
+    target = tokens[currentWord]
+
+    cost, gradPred, grad = \
+        word2vecCostAndGradient(vec, target, outputVectors, dataset)
+
+    gradOut = grad
+
+    for contextWord in contextWords:
+        ind = tokens[contextWord]
+        gradIn[ind, :] += gradPred
+
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
