@@ -27,8 +27,7 @@ def softmax(x):
     max_x = tf.reduce_max(x)
     x -= max_x
     exp_x = tf.exp(x)
-    base = tf.reduce_sum(exp_x, axis=1)
-    out = tf.divide(exp_x, base)
+    out = exp_x / tf.reduce_sum(exp_x, axis=1, keepdims=True)
     ### END YOUR CODE
 
     return out
