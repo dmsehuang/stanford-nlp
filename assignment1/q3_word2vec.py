@@ -15,7 +15,10 @@ def normalizeRows(x):
     """
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    a = x**2
+    y = np.sum(a, axis=1, keepdims=True)
+    y = np.sqrt(y)
+    x = x/y
     ### END YOUR CODE
 
     return x
@@ -58,7 +61,22 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     """
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+
+    # step 1: cost
+    y_predict = softmax(np.dot(predicted, outputVectors.T))
+    y_real = np.zeros(y_predict.shape)
+    y_real[target] = 1
+    cost = -np.sum(y_real * np.log(y_predict))
+
+    # step 2: gradient w.r.t predicted vector
+    gradPred = (y_predict - y_real).dot(outputVectors)
+
+    # step 3: gradient w.r.t output vector
+    # introduce vec_col & vec_row to convert a 1-D array into matrix format
+    vec_col = np.array([y_predict - y_real])
+    vec_row = np.array([predicted])
+    grad = vec_col.T.dot(vec_row)
+
     ### END YOUR CODE
 
     return cost, gradPred, grad
@@ -96,9 +114,29 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     indices.extend(getNegativeSamples(target, dataset, K))
 
     ### YOUR CODE HERE
-    raise NotImplementedError
-    ### END YOUR CODE
 
+    # (v, d) x (d,) ==> (v,)
+    probs = np.dot(outputVectors, predicted)
+
+    # step 1: cost
+    cost = -np.log(sigmoid(probs[target]))
+    cost += -np.sum(np.log(sigmoid(-probs[indices[1:]])))
+
+    # step 2: gradient w.r.t predicted vecotr
+    gradPred = np.zeros(predicted.shape)
+    pos1 = sigmoid(probs[target]) - 1 # scalar
+    pos2 = outputVectors[target] # (d,)
+    neg1 = sigmoid(-probs[indices[1:]]) - 1 # (K,)
+    neg2 = outputVectors[indices[1:]] # (K,d)
+    gradPred = pos1 * pos2 - np.dot(neg1, neg2)
+
+    # step 3: gradient w.r.t output vector
+    grad = np.zeros(outputVectors.shape)
+    grad[target, :] = (sigmoid(probs[target]) - 1) * predicted
+    for k in indices[1:]:
+        grad[k, :] += -(sigmoid(-probs[k]) - 1) * predicted
+
+    ### END YOUR CODE
     return cost, gradPred, grad
 
 
@@ -131,7 +169,18 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    ind_curr = tokens[currentWord]
+    predicted = inputVectors[ind_curr]
+
+    for contextWord in contextWords:
+        target = tokens[contextWord]
+
+        cost_i, gradPred, grad \
+            = word2vecCostAndGradient(predicted, target, outputVectors, dataset)
+
+        cost += cost_i
+        gradIn[ind_curr, :] += gradPred
+        gradOut += grad
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
@@ -155,7 +204,22 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    vec = np.zeros(inputVectors[0, :].shape) # (d,)
+    for contextWord in contextWords:
+        ind = tokens[contextWord]
+        vec += inputVectors[ind, :]
+
+    target = tokens[currentWord]
+
+    cost, gradPred, grad = \
+        word2vecCostAndGradient(vec, target, outputVectors, dataset)
+
+    gradOut = grad
+
+    for contextWord in contextWords:
+        ind = tokens[contextWord]
+        gradIn[ind, :] += gradPred
+
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
