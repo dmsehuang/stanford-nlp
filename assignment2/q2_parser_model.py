@@ -164,7 +164,8 @@ class ParserModel(Model):
         """
         ### YOUR CODE HERE
         loss = tf.reduce_mean(\
-            tf.nn.softmax_cross_entropy_with_logits(self.labels_placeholder, pred))
+            tf.nn.softmax_cross_entropy_with_logits(labels=self.labels_placeholder, \
+                                                    logits=pred))
         ### END YOUR CODE
         return loss
 
