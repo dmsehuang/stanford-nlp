@@ -1,3 +1,5 @@
+import copy
+
 class PartialParse(object):
     def __init__(self, sentence):
         """Initializes this partial parse.
@@ -89,6 +91,26 @@ def minibatch_parse(sentences, model, batch_size):
     """
 
     ### YOUR CODE HERE
+
+    # deep-copy vs shallow-copy:
+    # https://www.geeksforgeeks.org/copy-python-deep-copy-shallow-copy/
+    # list comprehension:
+    # https://docs.python.org/2/tutorial/datastructures.html#list-comprehensions
+
+    partial_parses = [PartialParse(sentence) for sentence in sentences]
+    unfinished_parses = copy.copy(partial_parses)
+
+    while unfinished_parses:
+        n = min(batch_size, len(unfinished_parses))
+        pp = unfinished_parses[:n]
+        trans = model.predict(pp)
+        for i in range(n):
+            pp[i].parse_step(trans[i])
+        unfinished_parses = [p for p in unfinished_parses \
+                            if not(len(p.buffer) == 0 and len(p.stack) == 1)]
+
+    dependencies = [pp.dependencies for pp in partial_parses]
+
     ### END YOUR CODE
 
     return dependencies
