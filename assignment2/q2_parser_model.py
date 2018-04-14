@@ -87,7 +87,7 @@ class ParserModel(Model):
             self.dropout_placeholder : dropout,
         }
         if labels_batch is not None:
-            feed_dict[self.labels_batch] = labels_batch
+            feed_dict[self.labels_placeholder] = labels_batch
         ### END YOUR CODE
         return feed_dict
 
@@ -164,7 +164,7 @@ class ParserModel(Model):
         """
         ### YOUR CODE HERE
         loss = tf.reduce_mean(\
-            tf.nn.softmax_cross_entropy_with_logits(labels=self.labels_placeholder, \
+            tf.nn.softmax_cross_entropy_with_logits_v2(labels=self.labels_placeholder, \
                                                     logits=pred))
         ### END YOUR CODE
         return loss
