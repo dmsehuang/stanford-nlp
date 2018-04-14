@@ -56,7 +56,7 @@ class ParserModel(Model):
         ### YOUR CODE HERE
         self.input_placeholder = tf.placeholder(tf.int32, (None, self.config.n_features))
         self.labels_placeholder = tf.placeholder(tf.float32, (None, self.config.n_classes))
-        self.dropout_placeholder = tf.placeholder(tf.float32, ())
+        self.dropout_placeholder = tf.placeholder(tf.float32, [])
         ### END YOUR CODE
 
     def create_feed_dict(self, inputs_batch, labels_batch=None, dropout=0):
@@ -143,6 +143,8 @@ class ParserModel(Model):
         U = xavier_init((self.config.hidden_size, self.config.n_classes))
         b1 = tf.Variable(tf.zeros(self.config.hidden_size, ))
         b2 = tf.Variable(tf.zeros(self.config.n_classes,))
+
+        # model
         h = tf.nn.relu(tf.matmul(x, W) + b1)
         h_drop = tf.nn.dropout(h, 1-self.dropout_placeholder)
         pred = tf.matmul(h_drop, U) + b2
